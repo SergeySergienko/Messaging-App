@@ -1,5 +1,12 @@
 import React from "react";
-import { StyleSheet, Alert, View } from "react-native";
+import {
+  StyleSheet,
+  Alert,
+  View,
+  Image,
+  TouchableHighlight,
+  BackHandler
+} from "react-native";
 import Status from "./components/Status";
 
 import MessageList from "./components/MessageList";
@@ -19,7 +26,45 @@ export default class App extends React.Component {
         latitude: 37.78825,
         longitude: -122.4324
       })
-    ]
+    ],
+    fullscreenImageId: null
+  };
+
+  componentWillMount() {
+    this.subscription = BackHandler.addEventListener(
+      "hardwareBackPress",
+      () => {
+        if (this.state.fullscreenImageId) {
+          this.dismissFullscreenImage();
+          return true;
+        }
+        return false;
+      }
+    );
+  }
+
+  componentWillUnmount() {
+    this.subscription.remove();
+  }
+
+  dismissFullscreenImage = () => {
+    this.setState({ fullscreenImageId: null });
+  };
+
+  renderFullscreenImage = () => {
+    const { messages, fullscreenImageId } = this.state;
+    if (!fullscreenImageId) return null;
+    const image = messages.find(message => message.id === fullscreenImageId);
+    if (!image) return null;
+    const { uri } = image;
+    return (
+      <TouchableHighlight
+        style={styles.fullscreenOverlay}
+        onPress={this.dismissFullscreenImage}
+      >
+        <Image style={styles.fullscreenImage} source={{ uri }} />
+      </TouchableHighlight>
+    );
   };
 
   handlePressMessage = ({ id, type }) => {
@@ -45,6 +90,9 @@ export default class App extends React.Component {
             }
           ]
         );
+        break;
+      case "image":
+        this.setState({ fullscreenImageId: id });
         break;
       default:
         break;
@@ -75,6 +123,7 @@ export default class App extends React.Component {
         {this.renderMessageList()}
         {this.renderToolbar()}
         {this.renderInputMethodEditor()}
+        {this.renderFullscreenImage()}
       </View>
     );
   }
@@ -97,5 +146,14 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: "rgba(0,0,0,0.4)",
     backgroundColor: "#fff"
+  },
+  fullscreenOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "black",
+    zIndex: 2
+  },
+  fullscreenImage: {
+    flex: 1,
+    resizeMode: "contain"
   }
 });
