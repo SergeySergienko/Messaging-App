@@ -8,6 +8,7 @@ import {
   BackHandler
 } from "react-native";
 import Status from "./components/Status";
+import Toolbar from "./components/Toolbar";
 
 import MessageList from "./components/MessageList";
 import {
@@ -27,7 +28,8 @@ export default class App extends React.Component {
         longitude: -122.4324
       })
     ],
-    fullscreenImageId: null
+    fullscreenImageId: null,
+    isInputFocused: false
   };
 
   componentWillMount() {
@@ -67,6 +69,18 @@ export default class App extends React.Component {
     );
   };
 
+  handlePressToolbarCamera = () => console.log("Camera");
+  handlePressToolbarLocation = () => console.log("Location");
+  handleChangeFocus = isFocused => {
+    this.setState({ isInputFocused: isFocused });
+  };
+  handleSubmit = text => {
+    const { messages } = this.state;
+    this.setState({
+      messages: [...messages, createTextMessage(text)]
+    });
+  };
+
   handlePressMessage = ({ id, type }) => {
     switch (type) {
       case "text":
@@ -92,7 +106,7 @@ export default class App extends React.Component {
         );
         break;
       case "image":
-        this.setState({ fullscreenImageId: id });
+        this.setState({ fullscreenImageId: id, isInputFocused: false });
         break;
       default:
         break;
@@ -114,7 +128,18 @@ export default class App extends React.Component {
     return <View style={styles.inputMethodEditor} />;
   }
   renderToolbar() {
-    return <View style={styles.toolbar} />;
+    const { isInputFocused } = this.state;
+    return (
+      <View style={styles.toolbar}>
+        <Toolbar
+          isFocused={isInputFocused}
+          onSubmit={this.handleSubmit}
+          onChangeFocus={this.handleChangeFocus}
+          onPressCamera={this.handlePressToolbarCamera}
+          onPressLocation={this.handlePressToolbarLocation}
+        />
+      </View>
+    );
   }
   render() {
     return (
