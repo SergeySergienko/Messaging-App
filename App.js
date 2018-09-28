@@ -11,6 +11,7 @@ import Status from "./components/Status";
 import Toolbar from "./components/Toolbar";
 
 import MessageList from "./components/MessageList";
+import ImageGrid from "./components/ImageGrid";
 import {
   createTextMessage,
   createImageMessage,
@@ -29,7 +30,8 @@ export default class App extends React.Component {
       })
     ],
     fullscreenImageId: null,
-    isInputFocused: false
+    isInputFocused: false,
+    isIME: false
   };
 
   componentWillMount() {
@@ -69,15 +71,51 @@ export default class App extends React.Component {
     );
   };
 
-  handlePressToolbarCamera = () => console.log("Camera");
-  handlePressToolbarLocation = () => console.log("Location");
+  handlePressImage = uri => {
+    const { messages } = this.state;
+    this.setState({
+      messages: [createImageMessage(uri), ...messages]
+    });
+  };
+
+  handlePressToolbarCamera = () => {
+    this.setState({ isIME: true });
+  };
+  handlePressToolbarLocation = () => {
+    const { messages } = this.state;
+    // navigator.geolocation.getCurrentPosition(position => {
+    //   const {
+    //     coords: { latitude, longitude }
+    //   } = position;
+    //   this.setState({
+    //     messages: [
+    //       createLocationMessage({
+    //         latitude: 38.78825,
+    //         longitude: -122.4324
+    //         // latitude,
+    //         // longitude
+    //       }),
+    //       ...messages
+    //     ]
+    //   });
+    // });
+    this.setState({
+      messages: [
+        createLocationMessage({
+          latitude: 49.9935,
+          longitude: 36.2304
+        }),
+        ...messages
+      ]
+    });
+  };
   handleChangeFocus = isFocused => {
     this.setState({ isInputFocused: isFocused });
   };
   handleSubmit = text => {
     const { messages } = this.state;
     this.setState({
-      messages: [...messages, createTextMessage(text)]
+      messages: [createTextMessage(text), ...messages]
     });
   };
 
@@ -125,7 +163,12 @@ export default class App extends React.Component {
     );
   }
   renderInputMethodEditor() {
-    return <View style={styles.inputMethodEditor} />;
+    if (!this.state.isIME) return null;
+    return (
+      <View style={styles.inputMethodEditor}>
+        <ImageGrid onPressImage={this.handlePressImage} />
+      </View>
+    );
   }
   renderToolbar() {
     const { isInputFocused } = this.state;
