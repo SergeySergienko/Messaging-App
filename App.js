@@ -79,7 +79,7 @@ export default class App extends React.Component {
   };
 
   handlePressToolbarCamera = () => {
-    this.setState({ isIME: true });
+    this.setState({ isIME: !this.state.isIME });
   };
   handlePressToolbarLocation = () => {
     const { messages } = this.state;

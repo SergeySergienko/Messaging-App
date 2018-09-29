@@ -8,12 +8,12 @@ import Grid from "./Grid";
 const keyExtractor = ({ uri }) => uri;
 
 export default class ImageGrid extends Component {
-  // static propTypes = {
-  //   onPressImage = PropTypes.func,
-  // }
-  // static defaultProps = {
-  //   onPressImage: () => {}
-  // }
+  static propTypes = {
+    onPressImage: PropTypes.func
+  };
+  static defaultProps = {
+    onPressImage: () => {}
+  };
   loading = false;
   cursor = null;
 
